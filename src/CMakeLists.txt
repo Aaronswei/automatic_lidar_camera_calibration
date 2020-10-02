@@ -10,9 +10,16 @@ add_library(${LIBRARY_NAME}
 )
 
 target_include_directories(${LIBRARY_NAME}
-  PUBLIC
+  SYSTEM PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
+    ${OpenCV_INCLUDE_DIRS}
+)
+
+target_link_libraries(${LIBRARY_NAME}
+  PUBLIC
+    Eigen3::Eigen
+    ${OpenCV_LIBRARIES}
 )
 
 target_compile_options(${LIBRARY_NAME}
