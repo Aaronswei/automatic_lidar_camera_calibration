@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(SOURCE_FILES
-  ${PROJECT_SOURCE_DIR}/src/Dummy.cpp
+  ${PROJECT_SOURCE_DIR}/src/HistogramHandler.cpp
+  ${PROJECT_SOURCE_DIR}/src/ProbabilityHandler.cpp
+  ${PROJECT_SOURCE_DIR}/src/Types.cpp
+  ${PROJECT_SOURCE_DIR}/src/Utility.cpp
 )
 
 add_library(${LIBRARY_NAME}
@@ -14,12 +17,15 @@ target_include_directories(${LIBRARY_NAME}
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     ${OpenCV_INCLUDE_DIRS}
+    ${RAPIDJSON_INCLUDE_DIRS}
+    ${PCL_INCLUDE_DIRS}
 )
 
 target_link_libraries(${LIBRARY_NAME}
   PUBLIC
     Eigen3::Eigen
     ${OpenCV_LIBRARIES}
+    ${PCL_LIBRARIES}
 )
 
 target_compile_options(${LIBRARY_NAME}
