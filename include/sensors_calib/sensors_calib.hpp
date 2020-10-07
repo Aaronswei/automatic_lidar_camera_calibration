@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "CalibrationHandler.hpp"
+
 #include "Constants.hpp"
 
 #include "HistogramHandler.hpp"

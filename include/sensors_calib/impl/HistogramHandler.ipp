@@ -26,7 +26,7 @@ bool HistogramHandler::update(const std::vector<cv::Mat>& grayImgs,
         const auto& inCloud = inClouds[i];
         const auto& grayImg = grayImgs[i];
 
-        this->update(grayImg, inCloud, cameraInfo, affine);
+        this->update<PointCloudType>(grayImg, inCloud, cameraInfo, affine);
     }
 
     return true;

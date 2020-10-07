@@ -7,7 +7,10 @@
 
 #pragma once
 
+#include <algorithm>
+#include <limits>
 #include <string>
+#include <vector>
 
 #include <opencv2/opencv.hpp>
 
@@ -91,6 +94,75 @@ cv::Mat drawPointCloudOnImagePlane(const cv::Mat& img, const typename pcl::Point
 
     return visualizedImg;
 }
+
+template <typename PointCloudType>
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr
+projectOnPointCloud(const cv::Mat& img, const typename pcl::PointCloud<PointCloudType>::Ptr& inCloud,
+                    const CameraInfo& cameraInfo, const Eigen::Affine3d& affine = Eigen::Affine3d::Identity())
+{
+    typename pcl::PointCloud<PointCloudType>::Ptr alignedCloud(new pcl::PointCloud<PointCloudType>());
+    pcl::transformPointCloud(*inCloud, *alignedCloud, affine.matrix());
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr outCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+
+    for (std::size_t i = 0; i < inCloud->points.size(); ++i) {
+        const auto& origPoint = inCloud->points[i];
+        const auto& alignedPoint = alignedCloud->points[i];
+        if (isnan(alignedPoint.x) || isnan(alignedPoint.y) || isnan(alignedPoint.z)) {
+            continue;
+        }
+        cv::Point imgPoint = projectToImagePlane<PointCloudType>(alignedPoint, cameraInfo);
+        if (imgPoint.x < 0 || imgPoint.x >= img.cols || imgPoint.y < 0 || imgPoint.y >= img.rows) {
+            continue;
+        }
+
+        pcl::PointXYZRGB outPoint;
+        outPoint.x = origPoint.x;
+        outPoint.y = origPoint.y;
+        outPoint.z = origPoint.z;
+        const auto& color = img.ptr<cv::Vec3b>(imgPoint.y)[imgPoint.x];
+        outPoint.b = color[0];
+        outPoint.g = color[1];
+        outPoint.r = color[2];
+        outCloud->points.emplace_back(outPoint);
+    }
+
+    outCloud->height = 1;
+    outCloud->width = outCloud->points.size();
+    return outCloud;
+}
+
+inline std::vector<std::string> splitByDelim(const std::string& s, const char delimiter)
+{
+    std::stringstream ss(s);
+    std::string token;
+    std::vector<std::string> tokens;
+    while (std::getline(ss, token, delimiter)) {
+        tokens.emplace_back(token);
+    }
+    return tokens;
+}
+
+inline std::vector<std::string> parseMetaDataFile(const std::string& metaDataFilePath)
+{
+    std::ifstream inFile;
+    inFile.open(metaDataFilePath);
+
+    if (!inFile) {
+        throw std::runtime_error("unable to open " + metaDataFilePath + "\n");
+    }
+
+    std::stringstream buffer;
+    buffer << inFile.rdbuf();
+
+    return splitByDelim(buffer.str(), '\n');
+}
+
+template <typename T>
+bool almostEquals(const T val, const T correctVal, const T epsilon = std::numeric_limits<T>::epsilon())
+{
+    const T maxXYOne = std::max({static_cast<T>(1.0f), std::fabs(val), std::fabs(correctVal)});
+    return std::fabs(val - correctVal) <= epsilon * maxXYOne;
+}
 }  // namespace perception
 
 #ifdef DEBUG
@@ -103,7 +175,7 @@ cv::Mat drawPointCloudOnImagePlane(const cv::Mat& img, const typename pcl::Point
 #if ENABLE_DEBUG
 #define DEBUG_LOG(...)                                                                                                 \
     {                                                                                                                  \
-        char str[100];                                                                                                 \
+        char str[200];                                                                                                 \
         snprintf(str, sizeof(str), __VA_ARGS__);                                                                       \
         std::cout << "[" << __FILE__ << "][" << __FUNCTION__ << "][Line " << __LINE__ << "] >>> " << str << std::endl; \
     }

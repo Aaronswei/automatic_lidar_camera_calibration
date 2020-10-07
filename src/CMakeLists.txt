@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(SOURCE_FILES
+  ${PROJECT_SOURCE_DIR}/src/CalibrationHandler.cpp
   ${PROJECT_SOURCE_DIR}/src/HistogramHandler.cpp
+  ${PROJECT_SOURCE_DIR}/src/ParamConfig.cpp
   ${PROJECT_SOURCE_DIR}/src/ProbabilityHandler.cpp
   ${PROJECT_SOURCE_DIR}/src/Types.cpp
   ${PROJECT_SOURCE_DIR}/src/Utility.cpp
@@ -30,6 +32,6 @@ target_link_libraries(${LIBRARY_NAME}
 
 target_compile_options(${LIBRARY_NAME}
   PRIVATE
-     $<$<CONFIG:Debug>:-O0 -g -Wall -Werror>
+     $<$<CONFIG:Debug>:-O0 -g -Wall>
      $<$<CONFIG:Release>:-O3>
 )

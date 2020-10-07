@@ -39,9 +39,6 @@ bool ProbabilityHandler::estimateMLE(const HistogramHandler::Ptr& histogram)
     auto stds = histogram->calculateStds();
     double sigmaGray = stds[0];
     double sigmaIntensity = stds[1];
-    double sigmaCorr = stds[2];
-
-    m_corrCoeff = sigmaCorr / (sigmaGray * sigmaIntensity);
 
     for (int i = 0; i < m_numBins; ++i) {
         for (int j = 0; j < m_numBins; ++j) {
@@ -61,42 +58,29 @@ bool ProbabilityHandler::estimateMLE(const HistogramHandler::Ptr& histogram)
     return true;
 }
 
-namespace
-{
-void removeNaN(cv::Mat& img)
-{
-    for (int i = 0; i < img.rows; ++i) {
-        auto imgPtr = img.ptr<double>(i);
-        for (int j = 0; j < img.cols; ++j) {
-            if (isinf(imgPtr[j]) || isnan(imgPtr[j])) {
-                imgPtr[j] = 0;
-            }
-        }
-    }
-}
-}  // namespace
-
 double ProbabilityHandler::calculateMICost() const
 {
-    cv::Mat grayLog, intensityLog, jointLog;
-    cv::log(m_grayProb, grayLog);
-    cv::log(m_intensityProb, intensityLog);
-    cv::log(m_jointProb, jointLog);
+    double grayEntropy = 0.0, intensityEntropy = 0.0, jointEntropy = 0.0;
 
-    removeNaN(grayLog);
-    removeNaN(intensityLog);
-    removeNaN(jointLog);
+    for (int i = 0; i < m_numBins; ++i) {
+        for (int j = 0; j < m_numBins; ++j) {
+            double jointV = m_jointProb.at<double>(i, j);
+            if (!perception::almostEquals(jointV, 0.0)) {
+                jointEntropy += -jointV * std::log2(jointV);
+            }
+        }
+        double grayV = m_grayProb.at<double>(i);
+        double intensityV = m_intensityProb.at<double>(i);
 
-    Entropy grayEntropy, intensityEntropy, jointEntropy;
-    cv::multiply(m_grayProb, grayLog, grayEntropy);
-    cv::multiply(m_intensityProb, intensityLog, intensityEntropy);
-    cv::multiply(m_jointProb, jointLog, jointEntropy);
+        if (!perception::almostEquals(grayV, 0.0)) {
+            grayEntropy += -grayV * std::log2(grayV);
+        }
+        if (!perception::almostEquals(intensityV, 0.0)) {
+            intensityEntropy += -intensityV * std::log2(intensityV);
+        }
+    }
 
-    double Hx = cv::norm(grayEntropy, cv::NORM_L1);
-    double Hy = cv::norm(intensityEntropy, cv::NORM_L1);
-    double Hxy = cv::norm(jointEntropy, cv::NORM_L1);
-
-    return Hx + Hy - Hxy;
+    return grayEntropy + intensityEntropy - jointEntropy;
 }
 
 void ProbabilityHandler::smoothKDE()

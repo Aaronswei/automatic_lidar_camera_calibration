@@ -19,7 +19,6 @@ class ProbabilityHandler
     using Ptr = std::shared_ptr<ProbabilityHandler>;
     using Probability = cv::Mat;
     using JointProbability = cv::Mat;
-    using Entropy = cv::Mat;
 
     explicit ProbabilityHandler(int numBins);
     ~ProbabilityHandler();
@@ -55,11 +54,6 @@ class ProbabilityHandler
         return m_totalPoints;
     }
 
-    double corrCoeff() const
-    {
-        return m_corrCoeff;
-    }
-
  private:
     void smoothKDE();  // kernel density estimation-based smoothing
 
@@ -68,7 +62,6 @@ class ProbabilityHandler
     Probability m_intensityProb;
     JointProbability m_jointProb;
 
-    double m_corrCoeff;  // correlation coefficient
     double m_sigmaGrayBandwidth;
     double m_sigmaIntensityBandwidth;
 

@@ -15,6 +15,9 @@ debug:
 apps:
 	@$(MAKE) all APPS=ON
 
+debug_apps:
+	@$(MAKE) debug APPS=ON
+
 unittest:
 	@$(MAKE) all UTEST=ON
 	@echo -e "\n\n Run test\n"

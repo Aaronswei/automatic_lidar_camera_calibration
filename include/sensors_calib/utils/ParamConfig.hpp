@@ -38,6 +38,10 @@ template <typename VALUE_TYPE> VALUE_TYPE getValueAs(const rapidjson::Document& 
     return node.Get<VALUE_TYPE>();
 }
 
+template <> std::string getValueAs<std::string>(const rapidjson::Document& rapidjsonDoc, const std::string& key);
+
+template <typename PARAM_TYPE> void validate(const PARAM_TYPE& param);
+
 inline rapidjson::Document readFromJsonFile(const std::string& jsonPath)
 {
     std::ifstream inFile;
