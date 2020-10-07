@@ -19,13 +19,21 @@ class ProbabilityHandler
     using Ptr = std::shared_ptr<ProbabilityHandler>;
     using Probability = cv::Mat;
     using JointProbability = cv::Mat;
+    using Entropy = cv::Mat;
 
     explicit ProbabilityHandler(int numBins);
     ~ProbabilityHandler();
 
     bool estimateMLE(const HistogramHandler::Ptr& histogram);
-    bool estimateJE(const HistogramHandler::Ptr& histogram);
-    bool estimateBayes(const HistogramHandler::Ptr& histogram);
+
+    // TODO: implement probability smoothing method for comparison
+    // bool estimateJE(const HistogramHandler::Ptr& histogram);
+    // bool estimateBayes(const HistogramHandler::Ptr& histogram);
+
+    /**
+     *  @brief calculate mutual information cost
+     */
+    double calculateMICost() const;
 
     const Probability& intensityProb() const
     {

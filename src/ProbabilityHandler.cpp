@@ -61,6 +61,44 @@ bool ProbabilityHandler::estimateMLE(const HistogramHandler::Ptr& histogram)
     return true;
 }
 
+namespace
+{
+void removeNaN(cv::Mat& img)
+{
+    for (int i = 0; i < img.rows; ++i) {
+        auto imgPtr = img.ptr<double>(i);
+        for (int j = 0; j < img.cols; ++j) {
+            if (isinf(imgPtr[j]) || isnan(imgPtr[j])) {
+                imgPtr[j] = 0;
+            }
+        }
+    }
+}
+}  // namespace
+
+double ProbabilityHandler::calculateMICost() const
+{
+    cv::Mat grayLog, intensityLog, jointLog;
+    cv::log(m_grayProb, grayLog);
+    cv::log(m_intensityProb, intensityLog);
+    cv::log(m_jointProb, jointLog);
+
+    removeNaN(grayLog);
+    removeNaN(intensityLog);
+    removeNaN(jointLog);
+
+    Entropy grayEntropy, intensityEntropy, jointEntropy;
+    cv::multiply(m_grayProb, grayLog, grayEntropy);
+    cv::multiply(m_intensityProb, intensityLog, intensityEntropy);
+    cv::multiply(m_jointProb, jointLog, jointEntropy);
+
+    double Hx = cv::norm(grayEntropy, cv::NORM_L1);
+    double Hy = cv::norm(intensityEntropy, cv::NORM_L1);
+    double Hxy = cv::norm(jointEntropy, cv::NORM_L1);
+
+    return Hx + Hy - Hxy;
+}
+
 void ProbabilityHandler::smoothKDE()
 {
     cv::GaussianBlur(m_grayProb, m_grayProb, cv::Size(0, 0), m_sigmaGrayBandwidth);
