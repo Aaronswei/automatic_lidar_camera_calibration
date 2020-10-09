@@ -7,7 +7,6 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 set(LIBRARY_NAME ${PROJECT_NAME})
 
-find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(PCL REQUIRED)
 

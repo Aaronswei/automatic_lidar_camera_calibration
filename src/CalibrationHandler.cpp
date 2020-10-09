@@ -38,6 +38,7 @@ CalibrationHandlerParam getCalibrationHandlerParam(const std::string& jsonPath)
     param.yMax = getValueAs<double>(jsonDoc, "y_max");
     param.zMin = getValueAs<double>(jsonDoc, "z_min");
     param.zMax = getValueAs<double>(jsonDoc, "z_max");
+    param.filterInputImage = getValueAs<bool>(jsonDoc, "filter_input_image");
 
     return param;
 }

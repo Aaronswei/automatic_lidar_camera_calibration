@@ -53,6 +53,8 @@ struct CalibrationHandlerParam {
     double zMax = 10;
 
     double epsilon = 1e-9;
+
+    bool filterInputImage = true;
 };
 
 CalibrationHandlerParam getCalibrationHandlerParam(const std::string& jsonPath);
@@ -140,6 +142,9 @@ CalibrationHandler<POINT_CLOUD_TYPE>::CalibrationHandler(const CalibrationHandle
             throw std::runtime_error("failed to read: " + pointcloudPaths[i]);
         }
 
+        if (m_param.filterInputImage) {
+            cv::GaussianBlur(colorImg, colorImg, cv::Size(3, 3), 0.75);
+        }
         cv::cvtColor(colorImg, grayImg, cv::COLOR_BGR2GRAY);
         m_colorImgs.emplace_back(colorImg);
         m_grayImgs.emplace_back(grayImg);

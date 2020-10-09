@@ -25,13 +25,12 @@ target_include_directories(${LIBRARY_NAME}
 
 target_link_libraries(${LIBRARY_NAME}
   PUBLIC
-    Eigen3::Eigen
     ${OpenCV_LIBRARIES}
     ${PCL_LIBRARIES}
 )
 
 target_compile_options(${LIBRARY_NAME}
   PRIVATE
-     $<$<CONFIG:Debug>:-O0 -g -Wall>
-     $<$<CONFIG:Release>:-O3>
+     $<$<CONFIG:Debug>:-O0 -g -Wall -Werror>
+     $<$<CONFIG:Release>:-O3 -Wall -Werror>
 )

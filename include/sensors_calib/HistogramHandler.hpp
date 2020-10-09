@@ -42,7 +42,7 @@ class HistogramHandler
                 const CameraInfo& cameraInfo, const Eigen::Affine3d& affine = Eigen::Affine3d::Identity());
 
     // image gray, lidar pointcloud intensity, join histogram standard deviation
-    std::array<double, 3> calculateStds() const;
+    std::array<double, 2> calculateStds() const;
 
     int totalPoints() const
     {
@@ -68,15 +68,15 @@ class HistogramHandler
     bool validateImagePoint(const cv::Mat& img, const cv::Point& point);
 
  public:
-    Histogram m_grayHist;
-    Histogram m_intensityHist;
-    JointHistogram m_jointHist;
-
     int m_numBins;
     int m_binFraction;
     int m_graySum;
     int m_intensitySum;
     int m_totalPoints;
+
+    Histogram m_grayHist;
+    Histogram m_intensityHist;
+    JointHistogram m_jointHist;
 };
 }  // namespace perception
 #include "impl/HistogramHandler.ipp"

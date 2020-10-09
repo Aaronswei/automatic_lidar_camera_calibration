@@ -12,8 +12,8 @@ namespace perception
 {
 HistogramHandler::HistogramHandler(int numBins)
     : m_numBins(numBins)
-    , m_intensitySum(0)
     , m_graySum(0)
+    , m_intensitySum(0)
     , m_totalPoints(0)
 {
     if (m_numBins <= 0 || m_numBins > perception::MAX_BINS) {
@@ -30,10 +30,10 @@ HistogramHandler::~HistogramHandler()
 {
 }
 
-std::array<double, 3> HistogramHandler::calculateStds() const
+std::array<double, 2> HistogramHandler::calculateStds() const
 {
     if (m_totalPoints == 0) {
-        return std::array<double, 3>{0, 0, 0};
+        return std::array<double, 2>{0, 0};
     }
 
     double meanGray = m_graySum / m_totalPoints;
@@ -41,21 +41,16 @@ std::array<double, 3> HistogramHandler::calculateStds() const
 
     double sigmaGray = 0;
     double sigmaIntensity = 0;
-    double sigmaCorr = 0;
 
     for (int i = 0; i < m_numBins; ++i) {
-        for (int j = 0; j < m_numBins; ++j) {
-            sigmaCorr += m_jointHist.at<double>(i, j) * (i - meanGray) * (j - meanIntensity);
-        }
         sigmaGray += m_grayHist.at<double>(i) * std::pow((i - meanGray), 2);
         sigmaIntensity += m_intensityHist.at<double>(i) * std::pow((i - meanIntensity), 2);
     }
 
     sigmaGray /= m_totalPoints;
     sigmaIntensity /= m_totalPoints;
-    sigmaCorr /= m_totalPoints;
 
-    return std::array<double, 3>{std::sqrt(sigmaGray), std::sqrt(sigmaIntensity), std::sqrt(sigmaCorr)};
+    return std::array<double, 2>{std::sqrt(sigmaGray), std::sqrt(sigmaIntensity)};
 }
 
 bool HistogramHandler::validateImagePoint(const cv::Mat& img, const cv::Point& point)
