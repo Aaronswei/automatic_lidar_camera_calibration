@@ -48,14 +48,19 @@ CalibrationHandler<POINT_CLOUD_TYPE>::CalibrationHandler(const CalibrationHandle
         }
 
         if (m_param.filterInputImage) {
-            cv::GaussianBlur(colorImg, colorImg, cv::Size(3, 3), 0.75);
+            cv::Mat filtered;
+            cv::bilateralFilter(colorImg, filtered, m_param.filterDiameter, m_param.sigmaColor, m_param.sigmaSpace);
+            cv::cvtColor(filtered, grayImg, cv::COLOR_BGR2GRAY);
+        } else {
+            cv::cvtColor(colorImg, grayImg, cv::COLOR_BGR2GRAY);
         }
-        cv::cvtColor(colorImg, grayImg, cv::COLOR_BGR2GRAY);
+
         m_colorImgs.emplace_back(colorImg);
         m_grayImgs.emplace_back(grayImg);
 
         inCloud = perception::PointCloudFilter<PointCloudType>::filterXYZAxis(
             inCloud, m_param.xMin, m_param.xMax, m_param.yMin, m_param.yMax, m_param.zMin, m_param.zMax);
+
         m_poinclouds.emplace_back(PointCloudPtr(new PointCloud(*inCloud)));
     }
 
@@ -76,9 +81,19 @@ double CalibrationHandler<POINT_CLOUD_TYPE>::calculateMICost(const TransformInfo
 
     m_histogramHandler->update<PointCloudType>(m_grayImgs, m_poinclouds, *m_cameraInfo,
                                                perception::toAffine(transform));
-    m_probabilityHandler->estimateMLE(m_histogramHandler);
 
-    return m_probabilityHandler->calculateMICost();
+    switch (m_param.probabilityEstimatorType) {
+        case 0: {
+            m_probabilityHandler->estimateMLE(m_histogramHandler, m_param.useBayes);
+            break;
+        }
+        case 1:
+        default:
+            m_probabilityHandler->estimateJS(m_histogramHandler, m_param.useBayes);
+            break;
+    }
+
+    return m_probabilityHandler->calculateMICost(m_param.normalizeMI);
 }
 
 template <typename POINT_CLOUD_TYPE>

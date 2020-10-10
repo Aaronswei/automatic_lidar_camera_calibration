@@ -23,16 +23,14 @@ class ProbabilityHandler
     explicit ProbabilityHandler(int numBins);
     ~ProbabilityHandler();
 
-    bool estimateMLE(const HistogramHandler::Ptr& histogram);
+    bool estimateMLE(const HistogramHandler::Ptr& histogram, const bool bayes = false);
 
-    // TODO: implement probability smoothing method for comparison
-    // bool estimateJE(const HistogramHandler::Ptr& histogram);
-    // bool estimateBayes(const HistogramHandler::Ptr& histogram);
+    bool estimateJS(const HistogramHandler::Ptr& histogram, const bool bayes = false);
 
     /**
      *  @brief calculate mutual information cost
      */
-    double calculateMICost() const;
+    double calculateMICost(const bool normalize = false) const;
 
     const Probability& intensityProb() const
     {

@@ -28,8 +28,8 @@ CalibrationHandlerParam getCalibrationHandlerParam(const std::string& jsonPath)
     param.deltaThresh = getValueAs<double>(jsonDoc, "delta_thresh");
     param.gammaTransU = getValueAs<double>(jsonDoc, "gamma_trans_upper");
     param.gammaTransL = getValueAs<double>(jsonDoc, "gamma_trans_lower");
-    param.gammaRotU = getValueAs<double>(jsonDoc, "gamma_rot_upper");
-    param.gammaRotL = getValueAs<double>(jsonDoc, "gamma_rot_lower");
+    param.gammaRotU = getValueAs<double>(jsonDoc, "gamma_rot_upper") * boost::math::double_constants::degree;
+    param.gammaRotL = getValueAs<double>(jsonDoc, "gamma_rot_lower") * boost::math::double_constants::degree;
     param.gammaStepFactor = getValueAs<double>(jsonDoc, "gamma_step_factor");
     param.maxIter = getValueAs<std::size_t>(jsonDoc, "max_iter");
     param.xMin = getValueAs<double>(jsonDoc, "x_min");
@@ -39,6 +39,12 @@ CalibrationHandlerParam getCalibrationHandlerParam(const std::string& jsonPath)
     param.zMin = getValueAs<double>(jsonDoc, "z_min");
     param.zMax = getValueAs<double>(jsonDoc, "z_max");
     param.filterInputImage = getValueAs<bool>(jsonDoc, "filter_input_image");
+    param.filterDiameter = getValueAs<int>(jsonDoc, "filter_diameter");
+    param.sigmaColor = getValueAs<double>(jsonDoc, "sigma_color");
+    param.sigmaSpace = getValueAs<double>(jsonDoc, "sigma_space");
+    param.normalizeMI = getValueAs<bool>(jsonDoc, "normalize_mi");
+    param.probabilityEstimatorType = getValueAs<int>(jsonDoc, "probability_estimator_type");
+    param.useBayes = getValueAs<bool>(jsonDoc, "use_bayes");
 
     return param;
 }

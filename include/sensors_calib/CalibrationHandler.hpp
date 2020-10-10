@@ -32,19 +32,19 @@ struct CalibrationHandlerParam {
     std::string pathToCameraInfo = "";
     int numBins = 256;
 
+    // optimization param
     double deltaTrans = 0.01;
     double deltaRotRad = 0.1 * boost::math::double_constants::degree;
     double deltaStepFactor = 1.1;
     double deltaThresh = 0.0001;
-
     double gammaTransU = 0.1;
-    double gammaTransL = 0.001;
-    double gammaRotU = 3.14;
-    double gammaRotL = 0.1;
+    double gammaTransL = 0.01;
+    double gammaRotU = 3.14 * boost::math::double_constants::degree;
+    double gammaRotL = 0.1 * boost::math::double_constants::degree;
     double gammaStepFactor = 1.2;
-
     std::size_t maxIter = 300;
 
+    // point cloud xyz filter
     double xMin = 0;
     double xMax = 10;
     double yMin = -10;
@@ -52,9 +52,18 @@ struct CalibrationHandlerParam {
     double zMin = -10;
     double zMax = 10;
 
-    double epsilon = 1e-9;
+    double epsilon = 1e-9;  // epsilon to avoid division by 0
 
-    bool filterInputImage = true;
+    // filter input images
+    bool filterInputImage = true;  // use bilateral filter
+    int filterDiameter = 15;
+    double sigmaColor = 75;
+    double sigmaSpace = 75;
+
+    // mutual information related params
+    bool normalizeMI = false;
+    int probabilityEstimatorType = 0;
+    bool useBayes = false;
 };
 
 CalibrationHandlerParam getCalibrationHandlerParam(const std::string& jsonPath);
