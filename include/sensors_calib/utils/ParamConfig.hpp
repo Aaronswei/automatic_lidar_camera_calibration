@@ -47,7 +47,7 @@ inline rapidjson::Document readFromJsonFile(const std::string& jsonPath)
     std::ifstream inFile;
     inFile.open(jsonPath);
     if (!inFile.is_open()) {
-        throw std::runtime_error("Failed to open json file");
+        throw std::runtime_error("Failed to open: " + jsonPath);
     }
 
     rapidjson::IStreamWrapper isw(inFile);

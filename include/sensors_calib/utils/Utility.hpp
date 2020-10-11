@@ -22,38 +22,25 @@
 
 namespace perception
 {
-inline cv::Scalar colorCodingDepthBGR(const int depth)
+inline cv::Scalar colorCodingReflectivityBGR(const int intensity)
 {
     std::uint8_t r, g, b;
-    if (depth < 0) {
-        // magnenta
-        r = 255;
-        g = 0;
+    if (intensity < 30) {
+        r = 0;
+        g = static_cast<int>(intensity * 255 / 30) & 0xff;
         b = 255;
-    } else if (depth < 2) {
-        r = 0;
-        g = static_cast<uint8_t>((depth - 0) / 50 * 255) & 0xff;
-        b = 0xff;
-    } else if (depth < 4) {
+    } else if (intensity < 90) {
         r = 0;
         g = 0xff;
-        b = 0xff - (static_cast<uint8_t>((depth - 50) / 70 * 255) & 0xff);
-    } else if (depth < 6) {
-        r = static_cast<uint8_t>((depth - 120) / 80 * 255) & 0xff;
+        b = static_cast<int>((90 - intensity) * 255 / 60) & 0xff;
+    } else if (intensity < 150) {
+        r = static_cast<int>((intensity - 90) * 255 / 60) & 0xff;
         g = 0xff;
         b = 0;
-    } else if (depth < 8) {
-        r = 0xff;
-        g = 0xff - (static_cast<uint8_t>((depth - 200) / 150 * 255) & 0xff);
-        b = 0;
-    } else if (depth < 10) {
-        r = 0xff;
-        g = 0x00;
-        b = static_cast<uint8_t>((depth - 350) / 150 * 255) & 0xff;
     } else {
         r = 0xff;
-        g = 0;
-        b = 0xff;
+        g = static_cast<int>((255 - intensity) * 255 / (256 - 150)) & 0xff;
+        b = 0;
     }
 
     return cv::Scalar(b, g, r);
@@ -89,7 +76,7 @@ cv::Mat drawPointCloudOnImagePlane(const cv::Mat& img, const typename pcl::Point
             continue;
         }
 
-        cv::circle(visualizedImg, imgPoint, 1 /* radius */, colorCodingDepthBGR(point.x), -1);
+        cv::circle(visualizedImg, imgPoint, 1 /* radius */, colorCodingReflectivityBGR(point.intensity), -1);
     }
 
     return visualizedImg;
