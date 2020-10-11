@@ -22,11 +22,6 @@ add_compile_options(
 
 add_subdirectory(src)
 
-if(BUILD_TEST)
-  enable_testing()
-  add_subdirectory(tests)
-endif()
-
 if(BUILD_APPS)
   add_subdirectory(examples)
 endif(BUILD_APPS)
